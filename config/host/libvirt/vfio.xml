@@ -1,0 +1,11 @@
+<!-- Example snippets for <devices>; adapt the host PCI addresses. -->
+<hostdev mode='subsystem' type='pci' managed='yes'>
+  <source>
+    <address domain='0x0000' bus='0x03' slot='0x00' function='0x0'/>
+  </source>
+</hostdev>
+<hostdev mode='subsystem' type='pci' managed='yes'>
+  <source>
+    <address domain='0x0000' bus='0x03' slot='0x00' function='0x1'/>
+  </source>
+</hostdev>

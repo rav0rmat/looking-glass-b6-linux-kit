@@ -1,0 +1,15 @@
+[Unit]
+Description=Looking Glass Client
+After=graphical-session.target
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+Environment=__NV_DISABLE_EXPLICIT_SYNC=1
+ExecStartPre=/bin/bash -c 'for i in {1..90}; do (exec 3<>/dev/tcp/127.0.0.1/5900) 2>/dev/null && exit 0; sleep 2; done; exit 1'
+ExecStart=/usr/bin/env -u WAYLAND_DISPLAY /usr/local/bin/looking-glass-client
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=graphical-session.target

@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Looking Glass Host
+Comment=XCB capture through KVMFR
+Exec=/usr/bin/env DISPLAY=:0 XAUTHORITY=@GUEST_HOME@/.Xauthority /usr/local/bin/looking-glass-host app:shmFile=/dev/kvmfr0 app:capture=xcb
+Terminal=false
+X-GNOME-Autostart-enabled=true

@@ -1,0 +1,59 @@
+diff --git a/src/agent.c b/src/agent.c
+--- a/src/agent.c
++++ b/src/agent.c
+@@ -223,7 +223,8 @@ PS_STATUS agent_process(PSChannel * channel)
+             return PS_STATUS_ERROR;
+           }
+ 
+-          const unsigned int totalData = msg->size - sizeof(*type);
++          const unsigned int totalData = msg->size - sizeof(*type) -
++            (agent.cbSelection ? sizeof(struct Selection) : 0);
+           agent.cbBuffer = (uint8_t *)malloc(totalData);
+           if (!agent.cbBuffer)
+           {
+@@ -262,13 +263,6 @@ PS_STATUS agent_process(PSChannel * channel)
+           agent.cbType          = agentTypeToPSType(types[0]);
+           agent.cbAgentGrabbed  = true;
+           agent.cbClientGrabbed = false;
+-          if (agent.cbSelection)
+-          {
+-            // Windows doesnt support this, so until it's needed there is no point
+-            // messing with it
+-            return PS_STATUS_OK;
+-          }
+-
+           if (g_ps.config.clipboard.enable)
+             g_ps.config.clipboard.notice(agent.cbType);
+ 
+@@ -441,7 +435,9 @@ bool purespice_clipboardRequest(PSDataType type)
+   if (!agent.present)
+     return false;
+ 
+-  VDAgentClipboardRequest req;
++  uint8_t req[sizeof(struct Selection) + sizeof(uint32_t)] = { 0 };
++  size_t reqSize = sizeof(uint32_t);
++  const uint32_t wireType = psTypeToAgentType(type);
+ 
+   if (!agent.cbAgentGrabbed)
+     return false;
+@@ -449,9 +445,17 @@ bool purespice_clipboardRequest(PSDataType type)
+   if (type != agent.cbType)
+     return false;
+ 
+-  req.type = psTypeToAgentType(type);
+-  if (!agent_startMsg(VD_AGENT_CLIPBOARD_REQUEST, sizeof(req)) ||
+-      !agent_writeMsg(&req, sizeof(req)))
++  if (agent.cbSelection)
++  {
++    req[0] = VD_AGENT_CLIPBOARD_SELECTION_CLIPBOARD;
++    memcpy(req + sizeof(struct Selection), &wireType, sizeof(wireType));
++    reqSize += sizeof(struct Selection);
++  }
++  else
++    memcpy(req, &wireType, sizeof(wireType));
++
++  if (!agent_startMsg(VD_AGENT_CLIPBOARD_REQUEST, reqSize) ||
++      !agent_writeMsg(req, reqSize))
+   {
+     PS_LOG_ERROR("Failed to write VD_AGENT_CLIPBOARD_REQUEST");
+     return false;

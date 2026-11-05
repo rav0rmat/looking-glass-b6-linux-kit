@@ -1,0 +1,29 @@
+name: upstream-check
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 4 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  report-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout kit
+        uses: actions/checkout@v4
+
+      - name: Compare revisions without modifying the installation
+        run: |
+          {
+            echo "## Stare upstream"
+            echo
+            echo '```text'
+            bash scripts/check-upstream.sh
+            echo '```'
+            echo
+            echo "Informational check only: no updates were applied."
+          } | tee "$GITHUB_STEP_SUMMARY"

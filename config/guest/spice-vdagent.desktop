@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=SPICE Guest Agent
+Exec=/usr/bin/spice-vdagent -x
+Terminal=false
+X-GNOME-Autostart-enabled=true

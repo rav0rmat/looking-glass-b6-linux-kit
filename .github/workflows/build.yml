@@ -1,0 +1,66 @@
+name: build-b6
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-and-build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - name: Checkout kit
+        uses: actions/checkout@v4
+
+      - name: Validation and build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential cmake git pkg-config shellcheck linux-headers-generic \
+            libfontconfig1-dev libegl1-mesa-dev libgl1-mesa-dev \
+            libx11-dev libxi-dev libxfixes-dev libxss-dev libxinerama-dev \
+            libxcursor-dev libxpresent-dev libxkbcommon-dev libwayland-dev \
+            wayland-protocols libpipewire-0.3-dev libpulse-dev \
+            libsamplerate0-dev libspice-protocol-dev libgmp-dev nettle-dev \
+            binutils-dev libiberty-dev libglib2.0-dev libxcb1-dev \
+            libxcb-shm0-dev libxcb-xfixes0-dev
+
+      - name: Publication and shell checks
+        run: |
+          bash scripts/check-public.sh
+          bash -n scripts/*.sh
+          shellcheck -x scripts/*.sh
+
+      - name: Build patched B6 client
+        run: |
+          bash scripts/build-client.sh \
+            --source-dir "$GITHUB_WORKSPACE/.upstream/LookingGlass" \
+            --build-dir "$GITHUB_WORKSPACE/build/client"
+
+      - name: Build Looking Glass Host XCB
+        run: |
+          bash scripts/build-host.sh \
+            --source-dir "$GITHUB_WORKSPACE/.upstream/LookingGlass" \
+            --build-dir "$GITHUB_WORKSPACE/build/host"
+
+      - name: Build KVMFR against generic headers
+        run: |
+          KBUILD=$(find /usr/src -maxdepth 1 -type d \
+            -name 'linux-headers-*-generic' | sort -V | tail -n 1)
+          test -n "$KBUILD"
+          bash scripts/build-kvmfr.sh \
+            --source-dir "$GITHUB_WORKSPACE/.upstream/LookingGlass" \
+            --kbuild "$KBUILD"
+
+      - name: Verify binaries and patches
+        run: |
+          test -x build/client/looking-glass-client
+          test -x build/host/looking-glass-host
+          test -f .upstream/LookingGlass/module/kvmfr.ko
+          git -C .upstream/LookingGlass/repos/PureSpice diff --check
+          git -C .upstream/LookingGlass diff --check
+          git -C .upstream/LookingGlass/repos/PureSpice diff --stat

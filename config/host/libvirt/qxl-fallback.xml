@@ -1,0 +1,4 @@
+<!-- Fallback console; SPICE remains local. Do not remove QXL before validating AMD. -->
+<video>
+  <model type='qxl' ram='65536' vram='65536' vgamem='16384' heads='1'/>
+</video>

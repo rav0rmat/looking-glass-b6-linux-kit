@@ -1,0 +1,5 @@
+<!-- Example; preserve the existing interface MAC address if you have DHCP reservations. -->
+<interface type='bridge'>
+  <source bridge='br0'/>
+  <model type='virtio'/>
+</interface>

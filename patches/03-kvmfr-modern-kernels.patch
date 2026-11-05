@@ -1,0 +1,31 @@
+diff --git a/module/kvmfr.c b/module/kvmfr.c
+--- a/module/kvmfr.c
++++ b/module/kvmfr.c
+@@ -30,5 +30,6 @@
+ #include <linux/memremap.h>
+ #include <linux/version.h>
++#include <linux/vmalloc.h>
+ 
+ #include <asm/io.h>
+ 
+@@ -539,7 +540,11 @@ static int __init kvmfr_module_init(void)
+   if (kvmfr->major < 0)
+     goto out_free;
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,4,0)
++  kvmfr->pClass = class_create(KVMFR_DEV_NAME);
++#else
+   kvmfr->pClass = class_create(THIS_MODULE, KVMFR_DEV_NAME);
++#endif
+   if (IS_ERR(kvmfr->pClass))
+     goto out_unreg;
+ 
+@@ -585,4 +590,8 @@ MODULE_AUTHOR("Guanzhong Chen <quantum2048@gmail.com>");
+ MODULE_VERSION("0.0.8");
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(5,16,0)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,13,0)
++MODULE_IMPORT_NS("DMA_BUF");
++#else
+ MODULE_IMPORT_NS(DMA_BUF);
+ #endif
++#endif

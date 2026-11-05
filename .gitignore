@@ -1,0 +1,7 @@
+.upstream/
+build/
+*.o
+*.ko
+*.log
+*.local
+.DS_Store

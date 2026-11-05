@@ -1,0 +1,14 @@
+diff --git a/src/agent.c b/src/agent.c
+--- a/src/agent.c
++++ b/src/agent.c
+@@ -200,6 +200,10 @@ PS_STATUS agent_process(PSChannel * channel)
+         struct Selection * selection = (struct Selection *)data;
+         data     += sizeof(*selection);
+         dataSize -= sizeof(*selection);
++
++        if (selection->selection !=
++            VD_AGENT_CLIPBOARD_SELECTION_CLIPBOARD)
++          return PS_STATUS_OK;
+       }
+ 
+       switch(msg->type)
