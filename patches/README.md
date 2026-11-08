@@ -5,3 +5,7 @@ Patches `01` and `02` apply inside `repos/PureSpice`, in that order. They enable
 Patch `03` applies at the Looking Glass root and adapts the KVMFR module to recent kernel APIs. Conditional code retains compatibility with older kernels supported by the B6 source.
 
 These patches modify upstream code and are provided under the license of the project they modify. The kit's original scripts and documentation are covered by the license in the repository root.
+
+Patch `04` applies at the Looking Glass root when building the Linux host. It adds an `XQueryPointer` position fallback for intermittent XFixes cursor-image failures while retaining the last valid cursor shape. It does not fix the underlying Xorg `BadAccess` condition.
+
+Patch `05` applies at the Looking Glass root when building the client. It makes the Wayland clipboard prefer plain-text representations over browser-specific URL representations.

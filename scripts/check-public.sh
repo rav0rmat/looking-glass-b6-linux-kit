@@ -5,7 +5,12 @@ FAILED=0
 
 scan() {
   local description=$1 pattern=$2
-  if grep -RInE --exclude-dir=.git --exclude='check-public.sh' -- "$pattern" "$ROOT"; then
+  if grep -RInE \
+    --exclude-dir=.git \
+    --exclude-dir=.upstream \
+    --exclude-dir=build \
+    --exclude='check-public.sh' \
+    -- "$pattern" "$ROOT"; then
     printf 'Potentially non-publishable content: %s\n' "$description" >&2
     FAILED=1
   fi

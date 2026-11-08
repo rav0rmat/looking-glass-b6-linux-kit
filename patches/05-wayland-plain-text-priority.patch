@@ -1,0 +1,24 @@
+--- a/client/displayservers/Wayland/clipboard.c
++++ b/client/displayservers/Wayland/clipboard.c
+@@ -223,7 +223,20 @@
+     return;
+ 
+   if (data->mimetypes[type])
+-    return;
++  {
++    const bool plainText =
++      type == LG_CLIPBOARD_DATA_TEXT &&
++      containsMimetype(textMimetypes, mimetype);
++    const bool currentPlainText =
++      type == LG_CLIPBOARD_DATA_TEXT &&
++      containsMimetype(textMimetypes, data->mimetypes[type]);
++
++    /* Prefer plain text over other text formats, such as browser URLs. */
++    if (!plainText || currentPlainText)
++      return;
++
++    free(data->mimetypes[type]);
++  }
+ 
+   data->mimetypes[type] = strdup(mimetype);
+ }

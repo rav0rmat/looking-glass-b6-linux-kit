@@ -1,0 +1,74 @@
+--- a/host/platform/Linux/capture/XCB/src/xcb.c
++++ b/host/platform/Linux/capture/XCB/src/xcb.c
+@@ -53,6 +53,8 @@
+   unsigned int height;
+ 
+   int mouseX, mouseY, mouseHotX, mouseHotY;
++  uint32_t mouseWidth, mouseHeight;
++  bool haveCursor;
+ 
+   bool                                 hasFrame;
+   xcb_shm_get_image_cookie_t           imgC;
+@@ -307,6 +309,8 @@
+ 
+ static int pointerThread(void * unused)
+ {
++  unsigned int cursorErrorCount = 0;
++
+   while (!this->stop)
+   {
+     if (this->stop)
+@@ -328,9 +332,52 @@
+     curReply = xcb_xfixes_get_cursor_image_reply(this->xcb, this->curC, NULL);
+     if (curReply == NULL)
+     {
+-      DEBUG_WARN("Failed to get cursor reply");
++      if (cursorErrorCount == 0 || cursorErrorCount % 1000 == 0)
++        DEBUG_WARN("Failed to get cursor reply; using position fallback (count=%u)",
++          cursorErrorCount + 1);
++      ++cursorErrorCount;
++
++      if (this->haveCursor)
++      {
++        xcb_query_pointer_cookie_t queryCookie =
++          xcb_query_pointer(this->xcb, this->xcbScreen->root);
++        xcb_query_pointer_reply_t * queryReply =
++          xcb_query_pointer_reply(this->xcb, queryCookie, NULL);
++
++        if (queryReply)
++        {
++          if (queryReply->root_x != this->mouseX ||
++              queryReply->root_y != this->mouseY)
++          {
++            this->mouseX = queryReply->root_x;
++            this->mouseY = queryReply->root_y;
++
++            pointer.positionUpdate = true;
++            pointer.shapeUpdate    = false;
++            pointer.hx             = this->mouseHotX;
++            pointer.hy             = this->mouseHotY;
++            pointer.visible        = true;
++            pointer.x              = queryReply->root_x - this->mouseHotX;
++            pointer.y              = queryReply->root_y - this->mouseHotY;
++            pointer.format         = CAPTURE_FMT_COLOR;
++            pointer.width          = this->mouseWidth;
++            pointer.height         = this->mouseHeight;
++            pointer.pitch          = this->mouseWidth * 4;
++
++            this->postPointerBufferFn(pointer);
++          }
++
++          free(queryReply);
++        }
++      }
++
++      usleep(1000);
+       continue;
+     }
++
++    this->mouseWidth  = curReply->width;
++    this->mouseHeight = curReply->height;
++    this->haveCursor  = true;
+ 
+     if(curReply->xhot != this->mouseHotX || curReply->yhot != this->mouseHotY)
+     {

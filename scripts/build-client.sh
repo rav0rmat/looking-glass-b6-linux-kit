@@ -23,8 +23,11 @@ need_cmd cmake
 bash "$SCRIPT_DIR/fetch-source.sh" "$SOURCE_DIR"
 apply_patch "$SOURCE_DIR/repos/PureSpice" "$KIT_ROOT/patches/01-purespice-linux-clipboard.patch"
 apply_patch "$SOURCE_DIR/repos/PureSpice" "$KIT_ROOT/patches/02-purespice-ignore-primary-selection.patch"
+apply_patch "$SOURCE_DIR"  "$KIT_ROOT/patches/05-wayland-plain-text-priority.patch"
 
-cmake -S "$SOURCE_DIR/client" -B "$BUILD_DIR" -DCMAKE_BUILD_TYPE=RelWithDebInfo
+cmake -S "$SOURCE_DIR/client" -B "$BUILD_DIR" \
+  -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+  -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 cmake --build "$BUILD_DIR" --parallel "$(nproc)"
 [[ -x "$BUILD_DIR/looking-glass-client" ]] || die "Client binary was not produced"
 

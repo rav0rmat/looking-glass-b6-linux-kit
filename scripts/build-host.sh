@@ -21,7 +21,12 @@ done
 
 need_cmd cmake
 bash "$SCRIPT_DIR/fetch-source.sh" "$SOURCE_DIR"
-cmake -S "$SOURCE_DIR/host" -B "$BUILD_DIR" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DUSE_XCB=ON
+apply_patch "$SOURCE_DIR"  "$KIT_ROOT/patches/04-xcb-pointer-position-fallback.patch"
+cmake -S "$SOURCE_DIR/host" -B "$BUILD_DIR" \
+  -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+  -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+  -DUSE_XCB=ON \
+  -DUSE_PIPEWIRE=OFF
 cmake --build "$BUILD_DIR" --parallel "$(nproc)"
 [[ -x "$BUILD_DIR/looking-glass-host" ]] || die "Host binary was not produced"
 

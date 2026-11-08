@@ -16,6 +16,9 @@ This repository contains no usernames, hostnames, IP/MAC addresses, tokens, or p
 - XCB capture in the guest, AMD 3840×2160 at approximately 60 Hz, SDR.
 - KVMFR adapted to recent kernel APIs, including kernel 7.0.
 - SPICE only on `127.0.0.1:5900`; QXL remains available as a fallback console.
+- An XCB pointer-position fallback for intermittent XFixes cursor-image failures.
+- Wayland clipboard plain-text priority, preventing browser URLs from replacing selected text.
+- `audio:micDefault=deny`; this disables microphone access, not audio playback.
 
 Performance depends on hardware and workload. This kit does not enable HDR or 120 Hz and does not promise the same frame rate on another system.
 

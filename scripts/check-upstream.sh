@@ -19,7 +19,8 @@ remote_commit() {
   awk 'NR==1 {print $1}' <<< "$output"
 }
 
-LG_REMOTE=$(remote_commit "$LG_REPOSITORY" "refs/heads/$LG_BRANCH") || die "Could not read upstream branch $LG_BRANCH"
+LG_REMOTE=$(remote_commit "$LG_REPOSITORY" "refs/tags/$LG_BRANCH^{}") ||
+  die "Could not read upstream tag $LG_BRANCH"
 PS_REMOTE=$(remote_commit "$PURESPICE_REPOSITORY" HEAD) || die "Could not read PureSpice HEAD"
 
 printf 'Looking Glass B6: pinned=%s upstream=%s\n' "$LG_COMMIT" "$LG_REMOTE"
