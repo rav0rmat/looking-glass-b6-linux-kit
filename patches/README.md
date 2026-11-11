@@ -9,3 +9,9 @@ These patches modify upstream code and are provided under the license of the pro
 Patch `04` applies at the Looking Glass root when building the Linux host. It adds an `XQueryPointer` position fallback for intermittent XFixes cursor-image failures while retaining the last valid cursor shape. It does not fix the underlying Xorg `BadAccess` condition.
 
 Patch `05` applies at the Looking Glass root when building the client. It makes the Wayland clipboard prefer plain-text representations over browser-specific URL representations.
+
+### 06-wayland-shutdown-safety.patch
+
+Prevents late Wayland input events from accessing application state during
+client shutdown. It guards the pointer and keyboard leave handlers and avoids
+locking the overlay list after that list has been freed.

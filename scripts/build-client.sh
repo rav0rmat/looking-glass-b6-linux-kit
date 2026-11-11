@@ -24,6 +24,7 @@ bash "$SCRIPT_DIR/fetch-source.sh" "$SOURCE_DIR"
 apply_patch "$SOURCE_DIR/repos/PureSpice" "$KIT_ROOT/patches/01-purespice-linux-clipboard.patch"
 apply_patch "$SOURCE_DIR/repos/PureSpice" "$KIT_ROOT/patches/02-purespice-ignore-primary-selection.patch"
 apply_patch "$SOURCE_DIR"  "$KIT_ROOT/patches/05-wayland-plain-text-priority.patch"
+apply_patch "$SOURCE_DIR" "$KIT_ROOT/patches/06-wayland-shutdown-safety.patch"
 
 cmake -S "$SOURCE_DIR/client" -B "$BUILD_DIR" \
   -DCMAKE_BUILD_TYPE=RelWithDebInfo \

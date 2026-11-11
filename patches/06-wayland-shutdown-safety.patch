@@ -1,0 +1,33 @@
+--- a/client/displayservers/Wayland/input.c
++++ b/client/displayservers/Wayland/input.c
+@@ -78,7 +78,7 @@
+ static void pointerLeaveHandler(void * data, struct wl_pointer * pointer,
+     uint32_t serial, struct wl_surface * surface)
+ {
+-  if (surface != wlWm.surface)
++  if (surface != wlWm.surface || !app_isRunning())
+     return;
+ 
+   wlWm.pointerInSurface = false;
+@@ -238,7 +238,7 @@
+ static void keyboardLeaveHandler(void * data, struct wl_keyboard * keyboard,
+     uint32_t serial, struct wl_surface * surface)
+ {
+-  if (surface != wlWm.surface)
++  if (surface != wlWm.surface || !app_isRunning())
+     return;
+ 
+   wlWm.focusedOnSurface = false;
+--- a/client/src/app.c
++++ b/client/src/app.c
+@@ -67,6 +67,10 @@
+   if (g_state.overlayInput)
+     return true;
+ 
++  /* Wayland events can arrive after the overlay list has been freed. */
++  if (!g_state.overlays)
++    return false;
++
+   bool result = false;
+   struct Overlay * overlay;
+   ll_lock(g_state.overlays);
