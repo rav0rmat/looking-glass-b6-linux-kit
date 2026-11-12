@@ -51,3 +51,14 @@ After every reboot, verify in order:
 - frame rate and absence of JIT calibration.
 
 The `verify-host.sh` and `verify-guest.sh` scripts read state and do not modify the configuration.
+
+## Host relogin test
+
+After logout and login, verify that IVSHMEM still exists and is accessible:
+
+    stat -c '%U:%G %a %s %n' /dev/shm/looking-glass
+    systemctl --user status looking-glass-client.service --no-pager
+
+The owner should remain the QEMU system user, not the desktop login user. The
+client unit is limited to three starts per minute and waits 15 seconds between
+restarts, preventing a persistent failure from becoming a restart loop.

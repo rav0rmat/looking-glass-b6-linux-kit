@@ -2,14 +2,17 @@
 Description=Looking Glass Client
 After=graphical-session.target
 PartOf=graphical-session.target
+StartLimitIntervalSec=60
+StartLimitBurst=3
 
 [Service]
 Type=simple
 Environment=__NV_DISABLE_EXPLICIT_SYNC=1
+ExecStartPre=/bin/bash -c 'for i in {1..90}; do [[ -f /dev/shm/looking-glass && -r /dev/shm/looking-glass && -w /dev/shm/looking-glass ]] && exit 0; sleep 2; done; exit 1'
 ExecStartPre=/bin/bash -c 'for i in {1..90}; do (exec 3<>/dev/tcp/127.0.0.1/5900) 2>/dev/null && exit 0; sleep 2; done; exit 1'
-ExecStart=/usr/bin/env -u WAYLAND_DISPLAY /usr/local/bin/looking-glass-client
+ExecStart=/usr/local/bin/looking-glass-client
 Restart=on-failure
-RestartSec=5
+RestartSec=15
 
 [Install]
 WantedBy=graphical-session.target

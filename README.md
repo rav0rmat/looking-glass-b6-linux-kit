@@ -17,6 +17,8 @@ This repository contains no usernames, hostnames, IP/MAC addresses, tokens, or p
 - KVMFR adapted to recent kernel APIs, including kernel 7.0.
 - SPICE only on `127.0.0.1:5900`; QXL remains available as a fallback console.
 - An XCB pointer-position fallback for intermittent XFixes cursor-image failures.
+- Wayland shutdown safety and XCB frame-request retry after transient capture errors.
+- Logind-safe IVSHMEM permissions through a targeted libvirt `started` hook.
 - Wayland clipboard plain-text priority, preventing browser URLs from replacing selected text.
 - `audio:micDefault=deny`; this disables microphone access, not audio playback.
 
