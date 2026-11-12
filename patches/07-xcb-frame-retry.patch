@@ -1,0 +1,12 @@
+--- a/host/platform/Linux/capture/XCB/src/xcb.c
++++ b/host/platform/Linux/capture/XCB/src/xcb.c
+@@ -296,7 +296,8 @@
+   img = xcb_shm_get_image_reply(this->xcb, this->imgC, NULL);
+   if (!img)
+   {
+-    DEBUG_ERROR("Failed to get image reply");
++    DEBUG_ERROR("Failed to get image reply; retrying with a new request");
++    this->hasFrame = false;
+     return CAPTURE_RESULT_ERROR;
+   }
+ 

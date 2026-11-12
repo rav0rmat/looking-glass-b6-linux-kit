@@ -22,6 +22,7 @@ done
 need_cmd cmake
 bash "$SCRIPT_DIR/fetch-source.sh" "$SOURCE_DIR"
 apply_patch "$SOURCE_DIR"  "$KIT_ROOT/patches/04-xcb-pointer-position-fallback.patch"
+apply_patch "$SOURCE_DIR" "$KIT_ROOT/patches/07-xcb-frame-retry.patch"
 cmake -S "$SOURCE_DIR/host" -B "$BUILD_DIR" \
   -DCMAKE_BUILD_TYPE=RelWithDebInfo \
   -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \

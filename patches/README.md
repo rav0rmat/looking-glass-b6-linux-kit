@@ -15,3 +15,9 @@ Patch `05` applies at the Looking Glass root when building the client. It makes 
 Prevents late Wayland input events from accessing application state during
 client shutdown. It guards the pointer and keyboard leave handlers and avoids
 locking the overlay list after that list has been freed.
+
+### 07-xcb-frame-retry.patch
+
+Resets the pending-frame state when XCB fails to return an image reply.
+This allows the capture loop to issue a new request instead of waiting
+indefinitely after a transient X server error.
