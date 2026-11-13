@@ -21,3 +21,14 @@ locking the overlay list after that list has been freed.
 Resets the pending-frame state when XCB fails to return an image reply.
 This allows the capture loop to issue a new request instead of waiting
 indefinitely after a transient X server error.
+
+### 08-xcb-capture-reinit.patch
+
+Handles repeated XCB image-reply failures through the host's internal capture
+restart path. The frame thread now honors `CAPTURE_RESULT_REINIT`. After three
+consecutive image failures, the XCB capture requests at most two consecutive
+reinitializations; a valid frame resets both counters.
+
+This mechanism is intended for transient capture failures during an active X
+session. It does not restart the virtual machine or client, and it does not
+keep retrying after the X session has exited.

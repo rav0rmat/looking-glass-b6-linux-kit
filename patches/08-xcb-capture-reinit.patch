@@ -1,0 +1,66 @@
+--- a/host/src/app.c
++++ b/host/src/app.c
+@@ -303,7 +303,16 @@
+     return true;
+   }
+ 
+-  app.iface->getFrame(fb, frame.frameHeight, app.frameIndex);
++  CaptureResult getResult =
++    app.iface->getFrame(fb, frame.frameHeight, app.frameIndex);
++
++  if (getResult == CAPTURE_RESULT_REINIT)
++  {
++    DEBUG_WARN("Capture interface requested reinitialization");
++    app.state = APP_STATE_RESTART;
++    return false;
++  }
++
+   return true;
+ }
+ 
+--- a/host/platform/Linux/capture/XCB/src/xcb.c
++++ b/host/platform/Linux/capture/XCB/src/xcb.c
+@@ -56,6 +56,9 @@
+   uint32_t mouseWidth, mouseHeight;
+   bool haveCursor;
+ 
++  unsigned int frameErrors;
++  unsigned int frameRestarts;
++
+   bool                                 hasFrame;
+   xcb_shm_get_image_cookie_t           imgC;
+   xcb_xfixes_get_cursor_image_cookie_t curC;
+@@ -296,14 +299,32 @@
+   img = xcb_shm_get_image_reply(this->xcb, this->imgC, NULL);
+   if (!img)
+   {
+-    DEBUG_ERROR("Failed to get image reply; retrying with a new request");
+     this->hasFrame = false;
++    ++this->frameErrors;
++
++    if (this->frameErrors >= 3 && this->frameRestarts < 2)
++    {
++      ++this->frameRestarts;
++      this->frameErrors = 0;
++      DEBUG_ERROR(
++        "Repeated XCB image failures; reinitializing capture (%u/2)",
++        this->frameRestarts);
++      return CAPTURE_RESULT_REINIT;
++    }
++
++    if (this->frameErrors == 1 || this->frameErrors % 1000 == 0)
++      DEBUG_ERROR(
++        "Failed to get image reply; retrying with a new request (count=%u)",
++        this->frameErrors);
++
+     return CAPTURE_RESULT_ERROR;
+   }
+ 
+   framebuffer_write(frame, this->data, this->width * height * 4);
+   free(img);
+ 
++  this->frameErrors   = 0;
++  this->frameRestarts = 0;
+   this->hasFrame = false;
+   return CAPTURE_RESULT_OK;
+ }
